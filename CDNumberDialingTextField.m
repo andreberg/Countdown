@@ -19,68 +19,90 @@
 
 #import "CDNumberDialingTextField.h"
 #import "CDAppController.h"
+#import "CDPrefsController.h"
 
 @implementation CDNumberDialingTextFieldEditor
 
 - (void) keyDown:(NSEvent *)event {
     NSString * characters = [event characters];
     
-    NSTextField * timeTextField = [[CDAppController sharedAppController] timeTextField];
-    NSStepper * timeStepper = [[CDAppController sharedAppController] timeStepper];
+    NSTextField * timeTextField = [APP_CONTROLLER timeTextField];
+    NSStepper * timeStepper = [APP_CONTROLLER timeStepper];
     
-    NSLog(@"timeTextField = %@", timeTextField);
-    NSLog(@"timeStepper = %@", timeStepper);
-    
+    if (DEBUG) {
+        NSLog(@"timeTextField = %@", timeTextField);
+        NSLog(@"timeStepper = %@", timeStepper);        
+    }
+        
     if ([characters length]) {
         unichar character = [characters characterAtIndex:0];
         if (character == NSLeftArrowFunctionKey) {
-            NSLog(@"LEFT pressed");
+            if (DEBUG) NSLog(@"LEFT pressed");
         } else if (character == NSRightArrowFunctionKey) {
-            NSLog(@"RIGHT pressed");
+            if (DEBUG) NSLog(@"RIGHT pressed");
         } else if (character == NSUpArrowFunctionKey) {
-            NSLog(@"UP pressed");
-            [timeTextField setDoubleValue:([timeTextField doubleValue] + 1.0)];
+            if (DEBUG) NSLog(@"UP pressed");
+            if ([event modifierFlags] & NSAlternateKeyMask) {
+                [timeTextField setDoubleValue:([timeTextField doubleValue] + 0.1)];
+            } else if (([event modifierFlags] & NSShiftKeyMask) || 
+                       ([event modifierFlags] & NSCommandKeyMask)) {
+                [timeTextField setDoubleValue:([timeTextField doubleValue] + 10.0)];
+            } else {
+                [timeTextField setDoubleValue:([timeTextField doubleValue] + 1.0)];
+            }
             [timeStepper takeDoubleValueFrom:timeTextField];
         } else if (character == NSDownArrowFunctionKey) {
-            NSLog(@"DOWN pressed");
-            [timeTextField setDoubleValue:([timeTextField doubleValue] - 1.0)]; 
+            if (DEBUG) NSLog(@"DOWN pressed");
+            //NSLog(@"modifierFlags = %d", [event modifierFlags]);
+            if ([event modifierFlags] & NSAlternateKeyMask) {
+                [timeTextField setDoubleValue:([timeTextField doubleValue] - 0.1)];
+            } else if (([event modifierFlags] & NSShiftKeyMask) || 
+                       ([event modifierFlags] & NSCommandKeyMask)) {
+                [timeTextField setDoubleValue:([timeTextField doubleValue] - 10.0)];
+            } else if ([event modifierFlags] & (NSShiftKeyMask & NSAlternateKeyMask)) {
+                [timeTextField setDoubleValue:([timeTextField doubleValue] - 100)];
+            } else {
+                [timeTextField setDoubleValue:([timeTextField doubleValue] - 1.0)];
+            }
             [timeStepper takeDoubleValueFrom:timeTextField];            
         }
     }
     [super keyDown:event];
 }
 
-
 @end
-
 
 @implementation CDNumberDialingTextField
 
 
 - (void) awakeFromNib {
-    [self addTrackingRect:[self bounds] owner:self userData:nil assumeInside:YES];
+    [self addTrackingRect:[self bounds] owner:self userData:nil assumeInside:NO];
 }
 
 - (void) mouseEntered:(NSEvent *)event {
     // NSLog(@"mouse entered %@", [event description]);
-    if (![[CDAppController sharedAppController] isCounting]) {
+    if (![APP_CONTROLLER isCounting]) {
         [self becomeFirstResponder];
+        [self takeDoubleValueFrom:timeStepper];
     }
-    //[super mouseEntered:event];
+    [super mouseEntered:event];
 }
 
 - (void) mouseExited:(NSEvent *)event {
     // NSLog(@"mouse exited %@", [event description]);
-    if (![[CDAppController sharedAppController] isCounting]) {
+    if (![APP_CONTROLLER isCounting]) {
         [timeStepper takeDoubleValueFrom:self];
     }
-    //[super mouseEntered:event];
+    [super mouseEntered:event];
 }
+
 
 - (void) scrollWheel:(NSEvent *)event {
     // NSLog(@"scroll wheel %@", [event description])
+    if (![self isEnabled]) {
+        return;
+    }
     [self becomeFirstResponder];
-    
     CGFloat dy;
     NSUInteger mf;
     
@@ -93,10 +115,13 @@
         dy *= 0.1;
     }
     
-    [self setDoubleValue:([self doubleValue] + dy)];
-    [timeStepper setDoubleValue:([timeStepper doubleValue] + dy)];
-    //[super scrollWheel:event];
-
+    dy = [self doubleValue] + dy;
+    [self setDoubleValue:dy];
+    [timeStepper setDoubleValue:dy];
+    [super scrollWheel:event];
+    if (dy > 0) {
+        [DEFAULTS setValue:[NSNumber numberWithFloat:dy] forKey:CDLastTimeValueKey];
+    }
 }
 
 @end

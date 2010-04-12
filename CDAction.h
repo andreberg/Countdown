@@ -18,11 +18,12 @@
 //  limitations under the License.
 
 #import <Cocoa/Cocoa.h>
-
+#import "SystemEvents.h"
 
 @class CDAppController;
+@class SBApplication, SystemEventsApplication;
 
-enum CDActionTypes {
+typedef enum  {
     CDActionShutDown = 0,
     CDActionRestart,
     CDActionSleep,
@@ -30,56 +31,45 @@ enum CDActionTypes {
     CDActionDialog,
     CDActionDialogBeep,
     CDActionShellScript
+} CDActionCode;
+
+typedef struct CDActionType {
+    CDActionCode code;
+    NSString * text;
+} CDActionType;
+
+static CDActionType gDefaultActionTypes[] = {
+    {CDActionShutDown,    @"Shut Down"},
+    {CDActionRestart,     @"Restart"},
+    {CDActionSleep,       @"Sleep"},
+    {CDActionLogOut,      @"Log Out"},
+    {CDActionDialog,      @"Dialog"},
+    {CDActionDialogBeep,  @"Dialog + Beep"},
+    {CDActionShellScript, @"Shell Script"},
 };
 
-static NSString * MsecStamp(NSDate * now) {    
-    NSString * msec = [[[NSString stringWithFormat:@"%.3f", 
-                         (CGFloat)([now timeIntervalSinceReferenceDate] - (NSInteger)[now timeIntervalSinceReferenceDate])] 
-                                componentsSeparatedByString:@"."] objectAtIndex:1];
-    NSDateFormatter * formatter = [[NSDateFormatter alloc] initWithDateFormat:@"%F" allowNaturalLanguage:NO];
-    msec = [formatter stringFromDate:now];
-    NSString * res = [NSString stringWithFormat:@"%@", msec];
-    return res;
-}
-
-static NSString * TimeStamp(NSDate * now) {
-    NSDateFormatter * formatter = [[NSDateFormatter alloc] initWithDateFormat:@"%H:%M:%S" allowNaturalLanguage:NO];
-    NSString * res = [formatter stringFromDate:now];
-    return res;
-}
-
-static NSString * DateStamp(NSDate * now) {
-    NSDateFormatter * formatter = [[NSDateFormatter alloc] initWithDateFormat:@"%Y-%m-%d" allowNaturalLanguage:NO];
-    NSString * res = [formatter stringFromDate:now];
-    return res;
-}
-
-static NSString * DateTimeMsecStamp(NSDate * now) {
-    return [NSString stringWithFormat:@"%@ %@.%@", DateStamp(now), TimeStamp(now), MsecStamp(now)];
-}
+FOUNDATION_EXPORT NSString * MsecStamp(NSDate * now);
+FOUNDATION_EXPORT NSString * TimeStamp(NSDate * now);
+FOUNDATION_EXPORT NSString * DateStamp(NSDate * now);
+FOUNDATION_EXPORT NSString * DateTimeMsecStamp(NSDate * now);
+FOUNDATION_EXPORT NSString * NSStringFromCDActionCode(CDActionCode code);
 
 @interface CDAction : NSObject {
-
-    NSString * type;
+    CDActionCode code;
     NSString * text;
-
     CDAppController * controller;
-
-    NSArray * types;    // all action types, indexed by enum CDActionTypes
-    NSArray * scripts;  // all AppleScript sources, indexed by enum CDActionTypes
 }
 
-- (id) initWithType:(NSString *)actionType text:(NSString *)actionText controller:(NSObject *)appController;
-- (NSString *) description;
++ (id) actionWithType:(NSString *)typeString text:(NSString *)actionText controller:(CDAppController *)appController;
+- (id) initWithType:(NSString *)typeString text:(NSString *)actionText controller:(CDAppController *)appController;
+
 - (void) run;
+
 - (NSAppleScript *) compileAppleScript:(NSString *)script errorInfo:(NSDictionary **)errInfo;
 - (NSString *) constructAppleScriptDialogString:(BOOL)makeAlert;
+- (NSString *) description;
 
-
-
-@property (nonatomic, copy) NSString * type;
+@property (nonatomic, assign) CDActionCode code;
 @property (nonatomic, copy) NSString * text;
 @property (nonatomic, retain) NSObject * controller;
-@property (nonatomic, retain) NSArray * types;
-@property (nonatomic, retain) NSArray * scripts;
 @end

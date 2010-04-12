@@ -15,11 +15,30 @@
 		6504F3F91154DC07003EFB50 /* CDAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 6504F3F81154DC07003EFB50 /* CDAction.m */; };
 		6504F3FC1154DD00003EFB50 /* CDPrefsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6504F3FB1154DD00003EFB50 /* CDPrefsController.m */; };
 		6504F5A211550012003EFB50 /* BWToolkitFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6504F5A111550012003EFB50 /* BWToolkitFramework.framework */; };
+		6585368C116CE85F0094BDB0 /* System Events.app in Resources */ = {isa = PBXBuildFile; fileRef = 6585368B116CE85F0094BDB0 /* System Events.app */; };
+		65853736116D05F00094BDB0 /* NSString-BMScriptUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 65853735116D05F00094BDB0 /* NSString-BMScriptUtilities.m */; };
+		6595AEF6116B6F6300C50629 /* NSDate-Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 6595AEF3116B6F6300C50629 /* NSDate-Utilities.m */; };
+		65A7BE9F1157855F009093E0 /* ScriptingBridge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65A7BE9E1157855F009093E0 /* ScriptingBridge.framework */; };
 		65C0A1C611543C8400FDF2E4 /* CDAppController.m in Sources */ = {isa = PBXBuildFile; fileRef = 65C0A1C511543C8400FDF2E4 /* CDAppController.m */; };
+		65EE2418116B6BCE0052FAD2 /* Project.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 65EE2417116B6BCE0052FAD2 /* Project.xcconfig */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		65853674116CE7000094BDB0 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.app";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+				"$(DERIVED_FILES_DIR)/$(INPUT_FILE_BASE).h",
+			);
+			script = "sdef \"$INPUT_FILE_PATH\" | sdp -fh -o \"$DERIVED_FILES_DIR\" --basename \"$INPUT_FILE_BASE\" --bundleid `defaults read \"$INPUT_FILE_PATH/Contents/Info\" CFBundleIdentifier`";
+		};
+/* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -40,8 +59,16 @@
 		6504F3FA1154DD00003EFB50 /* CDPrefsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDPrefsController.h; sourceTree = "<group>"; };
 		6504F3FB1154DD00003EFB50 /* CDPrefsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDPrefsController.m; sourceTree = "<group>"; };
 		6504F5A111550012003EFB50 /* BWToolkitFramework.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BWToolkitFramework.framework; path = Library/Frameworks/BWToolkitFramework.framework; sourceTree = SDKROOT; };
+		6585368B116CE85F0094BDB0 /* System Events.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = "System Events.app"; path = "/System/Library/CoreServices/System Events.app"; sourceTree = "<absolute>"; };
+		65853734116D05F00094BDB0 /* NSString-BMScriptUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString-BMScriptUtilities.h"; sourceTree = "<group>"; };
+		65853735116D05F00094BDB0 /* NSString-BMScriptUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString-BMScriptUtilities.m"; sourceTree = "<group>"; };
+		6595AEF2116B6F6300C50629 /* NSDate-Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate-Utilities.h"; sourceTree = "<group>"; };
+		6595AEF3116B6F6300C50629 /* NSDate-Utilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate-Utilities.m"; sourceTree = "<group>"; };
+		65A7BE1411568A17009093E0 /* SystemEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SystemEvents.h; sourceTree = "<group>"; };
+		65A7BE9E1157855F009093E0 /* ScriptingBridge.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ScriptingBridge.framework; path = System/Library/Frameworks/ScriptingBridge.framework; sourceTree = SDKROOT; };
 		65C0A1C411543C8400FDF2E4 /* CDAppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDAppController.h; sourceTree = "<group>"; };
 		65C0A1C511543C8400FDF2E4 /* CDAppController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDAppController.m; sourceTree = "<group>"; };
+		65EE2417116B6BCE0052FAD2 /* Project.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Project.xcconfig; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Countdown-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Countdown-Info.plist"; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Countdown.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Countdown.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -53,6 +80,7 @@
 			files = (
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				6504F5A211550012003EFB50 /* BWToolkitFramework.framework in Frameworks */,
+				65A7BE9F1157855F009093E0 /* ScriptingBridge.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -62,6 +90,8 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				65853733116D05D00094BDB0 /* Categories */,
+				65A7BE1211568A04009093E0 /* Apple Event Bridge */,
 				65C0A1C411543C8400FDF2E4 /* CDAppController.h */,
 				65C0A1C511543C8400FDF2E4 /* CDAppController.m */,
 				6504F3FA1154DD00003EFB50 /* CDPrefsController.h */,
@@ -77,6 +107,7 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				65A7BE9E1157855F009093E0 /* ScriptingBridge.framework */,
 				6504F5A111550012003EFB50 /* BWToolkitFramework.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 			);
@@ -104,6 +135,7 @@
 		29B97314FDCFA39411CA2CEA /* Countdown */ = {
 			isa = PBXGroup;
 			children = (
+				65EE2415116B6BB00052FAD2 /* Config */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -144,6 +176,35 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		65853733116D05D00094BDB0 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				6595AEF2116B6F6300C50629 /* NSDate-Utilities.h */,
+				6595AEF3116B6F6300C50629 /* NSDate-Utilities.m */,
+				65853734116D05F00094BDB0 /* NSString-BMScriptUtilities.h */,
+				65853735116D05F00094BDB0 /* NSString-BMScriptUtilities.m */,
+			);
+			name = Categories;
+			sourceTree = "<group>";
+		};
+		65A7BE1211568A04009093E0 /* Apple Event Bridge */ = {
+			isa = PBXGroup;
+			children = (
+				6585368B116CE85F0094BDB0 /* System Events.app */,
+				65A7BE1411568A17009093E0 /* SystemEvents.h */,
+			);
+			comments = "Apple Event Bridge is apparently the new name for the Scripting Bridge";
+			name = "Apple Event Bridge";
+			sourceTree = "<group>";
+		};
+		65EE2415116B6BB00052FAD2 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				65EE2417116B6BCE0052FAD2 /* Project.xcconfig */,
+			);
+			name = Config;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -156,6 +217,7 @@
 				8D11072E0486CEB800E47090 /* Frameworks */,
 			);
 			buildRules = (
+				65853674116CE7000094BDB0 /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -192,6 +254,8 @@
 				6504F3C31154D1CC003EFB50 /* MainMenu.xib in Resources */,
 				6504F3F11154DB50003EFB50 /* Defaults.plist in Resources */,
 				6504F3F31154DB7B003EFB50 /* hourglass.icns in Resources */,
+				65EE2418116B6BCE0052FAD2 /* Project.xcconfig in Resources */,
+				6585368C116CE85F0094BDB0 /* System Events.app in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -207,6 +271,8 @@
 				6504F3C71154D1E6003EFB50 /* CDNumberDialingTextField.m in Sources */,
 				6504F3F91154DC07003EFB50 /* CDAction.m in Sources */,
 				6504F3FC1154DD00003EFB50 /* CDPrefsController.m in Sources */,
+				6595AEF6116B6F6300C50629 /* NSDate-Utilities.m in Sources */,
+				65853736116D05F00094BDB0 /* NSString-BMScriptUtilities.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,7 +305,6 @@
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_ENABLE_OBJC_GC = supported;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -266,6 +331,7 @@
 		};
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 65EE2417116B6BCE0052FAD2 /* Project.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;

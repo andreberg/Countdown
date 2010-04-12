@@ -22,18 +22,24 @@
 extern NSString * CDActionTypeKey;
 extern NSString * CDActionTextKey;
 extern NSString * CDTimeUnitKey;
-extern NSString * CDLastTimerValueKey;
+extern NSString * CDLastTimeValueKey;
 extern NSString * CDLogOutputVerboseKey;
 extern NSString * CDUpdateIntervalKey;
 
 extern NSString * CDLogOutputVerboseChangedNotification;
 extern NSString * CDLogOutputVerboseChangedNotificationNewValueKey;
 
+@class CDNumberDialingTextField, CDNumberDialingTextFieldEditor;
 
 @interface CDPrefsController : NSWindowController {
     IBOutlet NSObject * appController;
+    IBOutlet NSStepper * prefsUpdateIntervalStepper;
+    IBOutlet NSTextField * prefsUpdateIntervalTextField;
+    IBOutlet NSMatrix * actionChoices;
+    IBOutlet NSTextField * actionTextField;
     BOOL logOutputVerbose;
     CGFloat updateInterval;
+    CDNumberDialingTextFieldEditor * textFieldEditor;
 }
 
 + (id) sharedPrefsController; 
@@ -48,4 +54,5 @@ extern NSString * CDLogOutputVerboseChangedNotificationNewValueKey;
 
 @property (nonatomic, assign) BOOL logOutputVerbose;
 @property (nonatomic, assign) CGFloat updateInterval;
+@property (nonatomic, retain) CDNumberDialingTextFieldEditor * textFieldEditor;
 @end

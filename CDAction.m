@@ -19,48 +19,103 @@
 
 #import "CDAction.h"
 #import "CDAppController.h"
+#import "NSString-BMScriptUtilities.h"
+#import "SystemEvents.h"
+
+// MARK: Helper Functions
+
+CD_INLINE
+NSString * MsecStamp(NSDate * now) {    
+    NSString * msec = [[[NSString stringWithFormat:@"%.3f", 
+                         (CGFloat)([now timeIntervalSinceReferenceDate] - (NSInteger)[now timeIntervalSinceReferenceDate])] 
+                            componentsSeparatedByString:@"."] objectAtIndex:1];
+    NSDateFormatter * formatter = [[NSDateFormatter alloc] initWithDateFormat:@"%F" allowNaturalLanguage:NO];
+    msec = [formatter stringFromDate:now];
+    NSString * res = [NSString stringWithFormat:@"%@", msec];
+    return res;
+}
+
+CD_INLINE
+NSString * TimeStamp(NSDate * now) {
+    NSDateFormatter * formatter = [[NSDateFormatter alloc] initWithDateFormat:@"%H:%M:%S" allowNaturalLanguage:NO];
+    NSString * res = [formatter stringFromDate:now];
+    return res;
+}
+
+CD_INLINE
+NSString * DateStamp(NSDate * now) {
+    NSDateFormatter * formatter = [[NSDateFormatter alloc] initWithDateFormat:@"%Y-%m-%d" allowNaturalLanguage:NO];
+    NSString * res = [formatter stringFromDate:now];
+    return res;
+}
+
+CD_INLINE
+NSString * DateTimeMsecStamp(NSDate * now) {
+    return [NSString stringWithFormat:@"%@ %@.%@", DateStamp(now), TimeStamp(now), MsecStamp(now)];
+}
+
+CD_INLINE
+NSString * NSStringFromCDActionCode(CDActionCode code) { 
+    return gDefaultActionTypes[code].text;
+}
+
+CD_INLINE
+CDActionCode CDActionCodeFromNSString(NSString * typeString) {
+    CDActionType *scan, *stop;
+    scan = gDefaultActionTypes;
+    stop = scan + (sizeof(gDefaultActionTypes) / sizeof(CDActionType));
+    while (scan < stop) {
+        if ([scan->text isEqualToString:typeString]) {
+            return scan->code;
+        }
+        scan++;
+    }
+    return NSNotFound;
+}
+
+@interface CDAction (/*Private*/)
+
+- (id) initWithActionCode:(CDActionCode)actionCode text:(NSString *)actionText controller:(CDAppController *)appController;
+
+@end
 
 @implementation CDAction
 
+
 // MARK: Object Creation
 
-// init
-- (id) init {
-    return [self initWithType:nil text:nil controller:nil];
++ (id) actionWithType:(NSString *)typeString text:(NSString *)actionText controller:(CDAppController *)appController {
+    return [[self alloc] initWithType:typeString text:actionText controller:appController];
 }
 
-- (id) initWithType:(NSString *)actionType text:(NSString *)actionText controller:(CDAppController *)appController {
+- (id) initWithType:(NSString *)typeString text:(NSString *)actionText controller:(CDAppController *)appController {
+    CDActionCode _code = CDActionCodeFromNSString(typeString);
+    if (_code != NSNotFound) {
+        return [self initWithActionCode:_code text:actionText controller:appController];
+    }
+    return nil;
+}
+
+- (id) init {
+    return [[CDAction alloc] initWithActionCode:-1 text:nil controller:nil];
+}
+
+// internal designated initializer
+- (id) initWithActionCode:(CDActionCode)actionCode text:(NSString *)actionText controller:(CDAppController *)appController {
     if (self = [super init]) {
-        type = actionType;
+        code = actionCode;
         text = actionText;
         controller = appController;
-        types = [NSArray arrayWithObjects:
-                                @"Shut Down", 
-                                @"Restart", 
-                                @"Sleep",   
-                                @"Log Out", 
-                                @"Dialog", 
-                                @"Dialog + Beep", 
-                                @"Shell Script", nil];
-        
-        scripts = [NSArray arrayWithObjects:
-                                @"tell application \"System Events\" to shut down", 
-                                @"tell application \"System Events\" to restart", 
-                                @"tell application \"System Events\" to sleep",   
-                                @"tell application \"System Events\" to log out", 
-                                @"property parent : app \"Countdown\"\n%@", 
-                                @"property parent : app \"Countdown\"\nbeep 1\n%@", nil];
-        
     }
     return self;
 }
 
 - (NSString *) description {
-    return [NSString stringWithFormat:@"executing action at %@ with type '%@' and action text '%@'", [NSDate date], type, text];
+    return [NSString stringWithFormat:@"executing action   at %@ with type '%@' and text %@", 
+            DateTimeMsecStamp([NSDate date]), NSStringFromCDActionCode(code), text];
 }
 
 // MARK: Methods
-
 
 - (NSAppleScript *) compileAppleScript:(NSString *)script errorInfo:(NSDictionary **)errInfo {
     NSAppleScript * as = [[NSAppleScript alloc] initWithSource:script];
@@ -73,58 +128,71 @@
     NSString * title = @"Countdown";
     NSString * timestamp = TimeStamp([NSDate date]);
     if (makeAlert) {
-        res = [NSString stringWithFormat:@"display alert \"%@\" message \"%@: %@\" buttons {\"OK\"} default button 1", title, timestamp, text];
+        res = [NSString stringWithFormat:@"display alert \"%@\" message \"%@: %@\" "
+                                         @"buttons {\"OK\"} default button 1", title, timestamp, [text quote]];
     }
     else {
-        res = [NSString stringWithFormat:@"display dialog \"%@: %@\" with title \"%@\" buttons {\"OK\"} with icon 1 default button 1", timestamp, text, title];
+        res = [NSString stringWithFormat:@"display dialog \"%@: %@\" with title \"%@\" "
+                                         @"buttons {\"OK\"} with icon 1 default button 1", timestamp, [text quote], title];
     }
     return res;
 }
 
 - (void) run {
-    if (DEBUG) NSLog(@"%@", [self description]);
+    NSAssert(controller, @"controller must not be nil");
     [controller startStopCountdown:self];
+
+    NSLog(@"%@", [self description]);
+
     NSAppleScript * as = nil;
     NSDictionary * errInfo = nil;
     
-    if ([type isEqualToString:[types objectAtIndex:CDActionShutDown]]) {
-        as = [self compileAppleScript:[self.scripts objectAtIndex:CDActionShutDown] errorInfo:&errInfo];
+    SystemEventsApplication * sysevents = [SBApplication applicationWithBundleIdentifier:@"com.apple.systemevents"];
+    
+    if (code == CDActionShutDown) {
+        [sysevents shutDown];
     }
-    else if ([type isEqualToString:[types objectAtIndex:CDActionRestart]]) {
-        as = [self compileAppleScript:[self.scripts objectAtIndex:CDActionRestart] errorInfo:&errInfo];
+    else if (code == CDActionRestart) {
+        [sysevents restart];
     }
-    else if ([type isEqualToString:[types objectAtIndex:CDActionSleep]]) {
-        as = [self compileAppleScript:[self.scripts objectAtIndex:CDActionSleep] errorInfo:&errInfo];
+    else if (code == CDActionSleep) {
+        [sysevents sleep];
     }
-    else if ([type isEqualToString:[types objectAtIndex:CDActionLogOut]]) {
-        as = [self compileAppleScript:[self.scripts objectAtIndex:CDActionLogOut] errorInfo:&errInfo];
+    else if (code == CDActionLogOut) {
+        [sysevents logOut];
     }
-    else if ([type isEqualToString:[types objectAtIndex:CDActionDialog]]) {
+    else if (code == CDActionDialog) {
         NSString * dialog = [self constructAppleScriptDialogString:YES];
-        as = [self compileAppleScript:[NSString stringWithFormat:[self.scripts objectAtIndex:CDActionDialog], dialog] errorInfo:&errInfo];
+        as = [self compileAppleScript:[NSString stringWithFormat:@"property parent : app \"Countdown\"\n%@", dialog] 
+                            errorInfo:&errInfo];
     }
-    else if ([type isEqualToString:[types objectAtIndex:CDActionDialogBeep]]) {
+    else if (code == CDActionDialogBeep) {
         NSString * dialog = [self constructAppleScriptDialogString:YES];
-        as = [self compileAppleScript:[NSString stringWithFormat:[self.scripts objectAtIndex:CDActionDialogBeep], dialog] errorInfo:&errInfo];
+        as = [self compileAppleScript:[NSString stringWithFormat:@"property parent : app \"Countdown\"\nbeep 1\n%@", dialog] 
+                            errorInfo:&errInfo];
+    }
+    else if (code == CDActionShellScript) {
+        @try {
+            NSInteger result = system([text UTF8String]);
+            NSLog(@"shell script returned %d", result);
+        }
+        @catch (NSException * e) {
+            NSLog(@"Shell script exception: %@ (%@)", [e reason], [e name]);
+        }
     }
     
+    // as will be set if code == CDActionDialog || code == CDActionDialogBeep
     if (as) {
         [as executeAndReturnError:&errInfo];
-    } else if (errInfo) {
-        NSLog(@"AppleScript compilation failed: %@", [errInfo descriptionInStringsFileFormat]);        
-    } else {
-        NSInteger result = system([text UTF8String]);
-        NSLog(@"shell script returned %d", result);
+        if (errInfo) {
+            NSLog(@"AppleScript compilation failed: %@", [errInfo descriptionInStringsFileFormat]);        
+        }
     }
 }
 
+// MARK: Properties
 
-
-// MARK: Synthesized Properties
-
-@synthesize type;
+@synthesize code;
 @synthesize text;
 @synthesize controller;
-@synthesize types;
-@synthesize scripts;
 @end

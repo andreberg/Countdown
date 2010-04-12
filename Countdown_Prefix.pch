@@ -6,7 +6,12 @@
     #import <Cocoa/Cocoa.h>
 #endif
 
-#define DEFAULTS [NSUserDefaults standardUserDefaults]
-#define DEFAULTS_CONTROLLER [NSUserDefaultsController sharedUserDefaultsController]
-#define PREFS [CDPrefsController sharedPrefsController]
-#define CENTER [NSNotificationCenter defaultCenter]
+// MARK: Project Wide Defines
+
+#define DEFAULTS                [NSUserDefaults standardUserDefaults]
+#define DEFAULTS_CONTROLLER     [NSUserDefaultsController sharedUserDefaultsController]
+#define PREFS_CONTROLLER        [CDPrefsController sharedPrefsController]
+#define APP_CONTROLLER          [CDAppController sharedAppController]
+#define NCENTER                 [NSNotificationCenter defaultCenter]
+
+#define CD_INLINE               __inline__ __attribute__((always_inline))

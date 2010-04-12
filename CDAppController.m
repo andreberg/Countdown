@@ -21,6 +21,7 @@
 #import "CDAction.h"
 #import "CDPrefsController.h"
 #import "CDNumberDialingTextField.h"
+#import "NSDate-Utilities.h"
 
 NSString * CDLogOutputVerboseKeyPath = @"logOutputVerbose";
 
@@ -32,11 +33,6 @@ BOOL DEBUG = NO;
 // init
 - (id)init {
     if (self = [super init]) {
-//         mainWindow = <#(NSWindow *)newMainWindow#>;
-//         startButton = <#(NSButton *)newStartButton#>;
-//         timeTextField = <#(NSTextField *)newTimeTextField#>;
-//         timeStepper = <#(NSStepper *)newTimeStepper#>;
-//         progressIndicator = <#(NSProgressIndicator *)newProgressIndicator#>;
         isCounting = NO;
         timer = nil;
         textFieldEditor = nil;
@@ -55,8 +51,8 @@ BOOL DEBUG = NO;
 //     timeStepper = timeStepper
 //     timeTextField = timeTextField
 //     textFieldEditor = nil
-    DEBUG = [PREFS logOutputVerbose];    
-    [CENTER addObserver:self selector:@selector(logOutputVerboseChanged:) name: CDLogOutputVerboseChangedNotification object:PREFS];
+    DEBUG = [PREFS_CONTROLLER logOutputVerbose];    
+    [NCENTER addObserver:self selector:@selector(logOutputVerboseChanged:) name: CDLogOutputVerboseChangedNotification object:PREFS_CONTROLLER];
     
 }
 
@@ -107,9 +103,10 @@ BOOL DEBUG = NO;
 // MARK: Countdown Engine
 
 - (IBAction) startStopCountdown:(id)sender {
-    self.action = [[CDAction alloc] initWithType:[DEFAULTS stringForKey:CDActionTypeKey] text:[DEFAULTS stringForKey:CDActionTextKey] controller:self];
-    
     if ([startButton.title isEqualToString:@"Start"]) {
+        self.action = [CDAction actionWithType:[DEFAULTS stringForKey:CDActionTypeKey] 
+                                          text:[DEFAULTS stringForKey:CDActionTextKey] 
+                                    controller:self];
         [self startCountdown];
         [startButton setTitle:@"Stop"];
         [timeTextField setEnabled:NO];
@@ -126,23 +123,29 @@ BOOL DEBUG = NO;
 - (void) startCountdown {
     NSLog(@"starting countdown at %@", DateTimeMsecStamp([NSDate date]));
     self.isCounting = YES;
-    timerCount = 0.0;
+    self.timerCount = 0.0;
     
-    timeTextFieldValue = [timeTextField doubleValue];
-    timeInterval = timeTextFieldValue;
-    timeUnit = [DEFAULTS stringForKey:CDTimeUnitKey];
-    
-    NSString * cdui = [DEFAULTS stringForKey:CDUpdateIntervalKey];    
-    CGFloat ui = atof([cdui UTF8String]);  
-    updateInterval = ui;
-    
-    NSLog(@"cdui = %@, updateInterval = %f", cdui, updateInterval);
-    
+    self.timeTextFieldValue = [timeTextField doubleValue];
+    self.timeInterval = timeTextFieldValue;
+    self.timeUnit = [DEFAULTS stringForKey:CDTimeUnitKey];
     if ([timeUnit isEqualToString:@"minutes"]) {
-        timeInterval *= 60.0;
+        self.timeInterval *= 60.0;
     }
     
+    CGFloat ui = 0.0;
+    NSString * uiStr = [DEFAULTS stringForKey:CDUpdateIntervalKey];
+    NSScanner * doubleScanner = [NSScanner scannerWithString:uiStr];
+    BOOL success = [doubleScanner scanDouble:&ui];
+    if (!success) {
+        if (DEBUG) NSLog(@"Warning: doubleScanner failed scanning [defaults stringForKey:CDUpdateIntervalKey]");
+        ui = atof([uiStr UTF8String]);
+    }
+    
+    NSAssert(ui > 0.0, @"ui must be greater than 0");
+    self.updateInterval = ui;
+    
     if (DEBUG) {
+        NSLog(@"updateInterval string = %@, updateInterval float = %f", uiStr, updateInterval);
         NSLog(@"using time unit %@", timeUnit);
         NSLog(@"target interval = %02.02f s", timeInterval);
     }
@@ -151,7 +154,7 @@ BOOL DEBUG = NO;
     self.timer = [[NSTimer alloc] initWithFireDate:[NSDate date] 
                                           interval:updateInterval 
                                             target:self 
-                                          selector:@selector(updateCountdownAndCheckStopCondition:) 
+                                          selector:@selector(updateCountdown:) 
                                           userInfo:nil 
                                            repeats:YES];
     
@@ -163,26 +166,45 @@ BOOL DEBUG = NO;
     [timer invalidate];
     [timeTextField setDoubleValue:timeTextFieldValue];
     NSLog(@"stopping countdown at %@", DateTimeMsecStamp([NSDate date]));
-    isCounting = NO;
+    self.isCounting = NO;
 }
 
 
-- (void) updateCountdownAndCheckStopCondition:(NSTimer *)theTimer {
-    NSComparisonResult cmp = [self.stopTime compare:[NSDate date]];
+- (void) updateCountdown:(NSTimer *)theTimer {
+    NSComparisonResult cmp = [stopTime compare:[NSDate date]];
     if (cmp < 0) {
         [progressIndicator setDoubleValue:0.0];
         [timeTextField setDoubleValue:timeTextFieldValue];
         [timer invalidate];
         [action run];
-    }
-    else {
+        [[NSGarbageCollector defaultCollector] collectIfNeeded];
+    } else {
         CGFloat pvalue = 100.0 - ((timerCount/timeInterval) * 100.0);
-        NSString * pvaluestr = [NSString stringWithFormat:@"%02.02f", pvalue];
-        if (DEBUG) NSLog(@"%@ %%", pvaluestr);
-        timerCount += updateInterval;
+        NSString * pvaluestr = [NSString stringWithFormat:@"%02.3f", pvalue];
+        
+//         NSCalendar * gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+//         NSUInteger unitFlags = NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit;
+//         NSDateComponents * components = [gregorian components:unitFlags
+//                                                      fromDate:[NSDate date]
+//                                                        toDate:stopTime 
+//                                                       options:0];
+//         NSInteger hours = [components hour];
+//         NSInteger minutes = [components minute];
+//         NSInteger seconds = [components second] + 1;  // need to add 1 since the NSTimer fire event 
+//                                                       // will happen on the next avilable second
+//         
+//         NSString * displaystr = [NSString stringWithFormat:@"%02d:%02d:%02d", hours, minutes, seconds];
+        
+        NSString * displaystr = [stopTime stringForOffsetFromDate:[NSDate dateWithSecondsBeforeNow:1] formatterTemplate:@"HH:mm:ss"];
+        
+        if (DEBUG) {
+            NSLog(@"%@%%", pvaluestr);
+        }
+        
+        self.timerCount += updateInterval;
+        
         [progressIndicator setDoubleValue:pvalue];
-        [timeTextField setDoubleValue:pvalue];
-//         NSLog(@"pvalue = %f, pvaluestr = %@", pvalue, pvaluestr);
+        [timeTextField setStringValue:displaystr];
     }
 }
 
@@ -212,20 +234,25 @@ BOOL DEBUG = NO;
 }
 
 - (void) applicationWillTerminate:(NSNotification *)notification {
-    [CENTER removeObserver:self name:CDLogOutputVerboseChangedNotification object:PREFS];
+    [NCENTER removeObserver:self name:CDLogOutputVerboseChangedNotification object:PREFS_CONTROLLER];
 }
 
 // MARK: NSWindow Delegate
 
 - (id) windowWillReturnFieldEditor:(NSWindow *)sender toObject:(id)client {
     if ([client isKindOfClass:[CDNumberDialingTextField class]]) {
-        if (!self.textFieldEditor) {
+        if (!textFieldEditor) {
             self.textFieldEditor = [[CDNumberDialingTextFieldEditor alloc] init];
-            [self.textFieldEditor setFieldEditor:YES];
+            [textFieldEditor setFieldEditor:YES];
         }
         return self.textFieldEditor;
     }
     return nil;
+}
+
+
+- (void) windowDidBecomeMain:(NSNotification *)notification {
+    [timeTextField becomeFirstResponder];
 }
 
 // MARK: Synthesized Properties

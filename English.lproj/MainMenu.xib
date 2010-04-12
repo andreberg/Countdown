@@ -2,10 +2,10 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.10">
 	<data>
 		<int key="IBDocument.SystemTarget">1060</int>
-		<string key="IBDocument.SystemVersion">10C540</string>
+		<string key="IBDocument.SystemVersion">10D573</string>
 		<string key="IBDocument.InterfaceBuilderVersion">740</string>
-		<string key="IBDocument.AppKitVersion">1038.25</string>
-		<string key="IBDocument.HIToolboxVersion">458.00</string>
+		<string key="IBDocument.AppKitVersion">1038.29</string>
+		<string key="IBDocument.HIToolboxVersion">460.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<bool key="EncodedWithXMLCoder">YES</bool>
 			<object class="NSArray" key="dict.sortedKeys">
@@ -798,7 +798,7 @@
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="269005646">
 								<int key="NSCellFlags">-1804468671</int>
-								<int key="NSCellFlags2">138413056</int>
+								<int key="NSCellFlags2">138413120</int>
 								<real value="1" key="NSContents"/>
 								<object class="NSFont" key="NSSupport" id="398531518">
 									<string key="NSName">LucidaGrande</string>
@@ -889,7 +889,6 @@
 									<bool key="NS.allowsfloats">YES</bool>
 								</object>
 								<reference key="NSControlView" ref="452955494"/>
-								<bool key="NSDrawsBackground">YES</bool>
 								<object class="NSColor" key="NSBackgroundColor" id="343252510">
 									<int key="NSColorSpace">6</int>
 									<string key="NSCatalogName">System</string>
@@ -1029,6 +1028,7 @@
 			<object class="NSUserDefaultsController" id="471183683">
 				<object class="NSMutableArray" key="NSDeclaredKeys">
 					<bool key="EncodedWithXMLCoder">YES</bool>
+					<string>LastTime</string>
 					<string>LastTimeValue</string>
 				</object>
 				<bool key="NSSharedInstance">YES</bool>
@@ -1467,7 +1467,7 @@
 							<int key="NSNibBindingConnectorVersion">2</int>
 						</object>
 					</object>
-					<int key="connectionID">441</int>
+					<int key="connectionID">448</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -2622,7 +2622,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">443</int>
+			<int key="maxID">448</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">

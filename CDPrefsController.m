@@ -18,30 +18,60 @@
 //  limitations under the License.
 
 #import "CDPrefsController.h"
+#import "CDAppController.h"
+#import "CDAction.h"
+#import "CDNumberDialingTextField.h"
 
-NSString * CDActionTypeKey = @"ActionType";
-NSString * CDActionTextKey = @"ActionText";
-NSString * CDTimeUnitKey = @"TimeUnit";
-NSString * CDLastTimerValueKey = @"LastTimeValue";
-NSString * CDLogOutputVerboseKey = @"LogOutputVerbose";
-NSString * CDUpdateIntervalKey = @"TimeUpdateInterval";
+NSString * CDActionTypeKey        = @"ActionType";
+NSString * CDActionTextKey        = @"ActionText";
+NSString * CDTimeUnitKey          = @"TimeUnit";
+NSString * CDLastTimeValueKey     = @"LastTimeValue";
+NSString * CDLogOutputVerboseKey  = @"LogOutputVerbose";
+NSString * CDUpdateIntervalKey    = @"TimeUpdateInterval";
 
-NSString * CDLogOutputVerboseChangedNotification = @"LogOutputVerboseChangedNotification";
-NSString * CDLogOutputVerboseChangedNotificationNewValueKey = @"newValue";
+NSString * CDLogOutputVerboseChangedNotification              = @"LogOutputVerboseChangedNotification";
+NSString * CDLogOutputVerboseChangedNotificationNewValueKey   = @"LogOutputVerboseChangedNotificationNewValue";
 
 static CDPrefsController * sharedInstance = nil;
 
 @implementation CDPrefsController
 
+// FIXME: UpdateInterval text field needs delegate 
+// which handles textShouldEndEditing to really update
+// the model / user defaults
+
 - (id) init {
-    [self initWithWindowNibName:@"Preferences"];
     [self setupDefaults];
     logOutputVerbose = [DEFAULTS boolForKey:CDLogOutputVerboseKey];
-    updateInterval = [DEFAULTS doubleForKey:CDUpdateIntervalKey];    
+    updateInterval = [DEFAULTS doubleForKey:CDUpdateIntervalKey];
     return self;
 }
 
 - (void) awakeFromNib {
+    if (actionChoices) {
+        [actionChoices setAction:@selector(handleActionChoice:)];
+    }
+}
+
+- (IBAction) handleActionChoice:(id)sender {
+    if (actionTextField) {
+        NSInteger srow = [actionChoices selectedRow];
+        switch (srow) {
+            case CDActionDialog:
+                [actionTextField setEnabled:YES];
+                break;
+            case CDActionDialogBeep:
+                [actionTextField setEnabled:YES];
+                break;
+            case CDActionShellScript:
+                [actionTextField setEnabled:YES];
+                break;
+            default:
+                [actionTextField setEnabled:NO];
+                break;
+        }
+        
+    }
 }
 
 // MARK: Singleton Creation
@@ -88,6 +118,7 @@ static CDPrefsController * sharedInstance = nil;
     return self;
 }
 
+
 // MARK: Actions
 
 - (IBAction) showWindow:(id)sender {
@@ -108,17 +139,20 @@ static CDPrefsController * sharedInstance = nil;
         logOutputVerbose = YES;
     }
     NSDictionary * info = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:logOutputVerbose] forKey:CDLogOutputVerboseChangedNotificationNewValueKey];
-    [CENTER postNotificationName:CDLogOutputVerboseChangedNotification object:PREFS userInfo:info];
+    [NCENTER postNotificationName:CDLogOutputVerboseChangedNotification object:PREFS_CONTROLLER userInfo:info];
 }
 
 - (IBAction) savePrefsAndCloseWindow:(id)sender {
-    [DEFAULTS_CONTROLLER save:sender];
+    [(NSUserDefaultsController *)DEFAULTS_CONTROLLER save:sender];
     [DEFAULTS synchronize];
     [NSApp endSheet:self.window];
 }
 
 - (void) didEndSheet:(NSPanel *)sheet {
 	[sheet orderOut:self];
+    if (!APP_CONTROLLER.isCounting) {
+        [[APP_CONTROLLER timeTextField] becomeFirstResponder];
+    }
 }
 
 // MARK: Methods
@@ -130,8 +164,37 @@ static CDPrefsController * sharedInstance = nil;
     [DEFAULTS_CONTROLLER setInitialValues:defaultsDict];	
 }
 
+// MARK: NSWindow Delegate
+
+// - (id) windowWillReturnFieldEditor:(NSWindow *)sender toObject:(id)client {
+//     if ([client isKindOfClass:[CDNumberDialingTextField class]]) {
+//         if (!self.textFieldEditor) {
+//             self.textFieldEditor = [[CDNumberDialingTextFieldEditor alloc] init];
+//             [self.textFieldEditor setFieldEditor:YES];
+//         }
+//         return self.textFieldEditor;
+//     }
+//     return nil;
+// }
+
+// MARK: Menu Validation
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    // don't show the preferences if countdown has begun
+    if ([[menuItem title] isEqualToString:@"Preferences…"]) {
+        if (APP_CONTROLLER.isCounting) {
+            return NO;
+        } else {
+            return YES;
+        }
+    } else {
+        return [super validateMenuItem:menuItem];
+    }
+}
+
 // MARK: Synthesized Properties
 
 @synthesize logOutputVerbose;
 @synthesize updateInterval;
+@synthesize textFieldEditor;
 @end

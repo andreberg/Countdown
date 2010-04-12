@@ -30,19 +30,20 @@ extern BOOL DEBUG;
     IBOutlet NSTextField * timeTextField;
     IBOutlet NSStepper * timeStepper;
     IBOutlet NSProgressIndicator * progressIndicator;
+    
+    CDAction * action;
 
     NSTextView * textFieldEditor;
+    NSString * timeUnit;
+    NSDate * stopTime;
     NSTimer * timer;
     CGFloat timerCount;
     CGFloat timeInterval;     // granularity of the interval used for the timer math
     CGFloat updateInterval;   // granularity of log and progress indicator updates
     CGFloat timeTextFieldValue;
-    NSString * timeUnit;
-    NSDate * stopTime;
-    CDAction * action;
-
-    @public
-
+    
+  @public
+    
     BOOL isCounting;
 }
 
