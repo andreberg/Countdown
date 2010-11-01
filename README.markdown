@@ -30,7 +30,7 @@ Three possibilities for a different approach:
 License
 -------
 
-    Created by André Berg on 2010-01-01.
+    Created by André Berg on 2010-03-21.
     Copyright Berg Media 2010. All rights reserved.
 
     Licensed under the Apache License, Version 2.0 (the "License");
