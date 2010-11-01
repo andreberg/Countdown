@@ -27,6 +27,11 @@ Three possibilities for a different approach:
     2. Countdown as a menu extra that is visible from the global menu bar could also make sense.   
     3. Implement Countdown as a HUD based panel that is always visible (Although I am not too big a fan of this approach).
 
+Attribution
+-----------
+
+Application icon (hourglass.icns) from [CocoaDialog](http://cocoadialog.sourceforge.net "CocoaDialog at Sourceforge"), © 2004 Mark A. Stratman.
+
 License
 -------
 
