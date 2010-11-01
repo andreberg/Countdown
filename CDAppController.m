@@ -149,6 +149,7 @@ BOOL DEBUG = NO;
     NSLog(@"starting countdown at %@", DateTimeMsecStamp([NSDate date]));
     self.isCounting = YES;
     self.timerCount = 0.0;
+    [NSApp disableSuddenTermination];
     
     self.timeTextFieldValue = [timeTextField doubleValue];
     self.timeInterval = timeTextFieldValue;
@@ -204,6 +205,7 @@ BOOL DEBUG = NO;
     [timeTextField setDoubleValue:timeTextFieldValue];
     NSLog(@"stopping countdown at %@", DateTimeMsecStamp([NSDate date]));
     self.isCounting = NO;
+    [NSApp enableSuddenTermination];
 }
 
 
@@ -213,6 +215,7 @@ BOOL DEBUG = NO;
         [progressIndicator setDoubleValue:0.0];
         [timeTextField setDoubleValue:timeTextFieldValue];
         [timer invalidate];
+        [NSApp enableSuddenTermination];
         [action run];
         [[NSGarbageCollector defaultCollector] collectIfNeeded];
     } else {
