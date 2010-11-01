@@ -146,17 +146,6 @@ static CDPrefsController * sharedInstance = nil;
     [NCENTER postNotificationName:CDLogOutputVerboseChangedNotification object:self userInfo:info];
 }
 
-//- (IBAction) keepWindowAfloatClicked:(id)sender {
-//    if ([sender state] == 0) {
-//        self.keepWindowAfloat = NO;
-//    } else {
-//        self.keepWindowAfloat = YES;
-//    }
-//    NSDictionary * info = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:keepWindowAfloat] forKey:CDKeepWindowAfloatChangedNotificationNewValueKey];
-//    [NCENTER postNotificationName:CDKeepWindowAfloatChangedNotification object:self userInfo:info];
-//    [APP_CONTROLLER setMainWindowKeepAfloat:keepWindowAfloat];
-//}
-
 - (IBAction) savePrefsAndCloseWindow:(id)sender {
     [(NSUserDefaultsController *)DEFAULTS_CONTROLLER save:sender];
     [DEFAULTS synchronize];

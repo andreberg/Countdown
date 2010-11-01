@@ -58,7 +58,14 @@ BOOL DEBUG = NO;
 
 - (void) awakeFromNib {
     if (keepAfloatMenuItem) {
-        [keepAfloatMenuItem setState:[[DEFAULTS valueForKey:CDKeepWindowAfloatKey] boolValue]];
+        BOOL state = [[DEFAULTS valueForKey:CDKeepWindowAfloatKey] boolValue];
+        if (state) {
+            [self setMainWindowKeepAfloat:YES];
+            [keepAfloatMenuItem setState:NSOnState];
+        } else {
+            [self setMainWindowKeepAfloat:NO];
+            [keepAfloatMenuItem setState:NSOffState];
+        }
     }
 }
 
@@ -109,15 +116,11 @@ BOOL DEBUG = NO;
 
 - (IBAction) keepWindowAfloat:(id)sender {
     if ([sender state] == NSOffState) {
-        [[NSApp mainWindow] setLevel:NSFloatingWindowLevel];
+        [self setMainWindowKeepAfloat:YES];
         [sender setState:NSOnState];
-        [DEFAULTS setValue:[NSNumber numberWithBool:YES] forKey:CDKeepWindowAfloatKey];
-        [DEFAULTS synchronize];
     } else { // NSOnState
-        [[NSApp mainWindow] setLevel:NSNormalWindowLevel];
+        [self setMainWindowKeepAfloat:NO];
         [sender setState:NSOffState];
-        [DEFAULTS setValue:[NSNumber numberWithBool:NO] forKey:CDKeepWindowAfloatKey];
-        [DEFAULTS synchronize];
     }
 }
 
@@ -267,22 +270,20 @@ BOOL DEBUG = NO;
     }
 }
 
-- (void) keepWindowAfloatChanged:(NSNotification *)notification {
-    BOOL newValue = [[[notification userInfo] objectForKey:CDKeepWindowAfloatChangedNotificationNewValueKey] boolValue];
-    [self setMainWindowKeepAfloat:newValue];
-    if (newValue) {
-        if (DEBUG) NSLog(@"setting keep window afloat to true");
-    } else {
-        if (DEBUG) NSLog(@"setting keep window afloat to false");
+- (void) setMainWindowKeepAfloat:(BOOL)newState {
+    if (!mainWindow) {
+        mainWindow = [NSApp mainWindow];
     }
-}
-
-- (void) setMainWindowKeepAfloat:(BOOL)flag {
-    if (flag) {
-        [[NSApp mainWindow] setLevel:NSFloatingWindowLevel];
+    if (newState) {
+        [mainWindow setLevel:NSFloatingWindowLevel];
+        [mainWindow setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces];
+        [DEFAULTS setValue:[NSNumber numberWithBool:YES] forKey:CDKeepWindowAfloatKey];
     } else {
-        [[NSApp mainWindow] setLevel:NSNormalWindowLevel];
+        [mainWindow setLevel:NSNormalWindowLevel];
+        [mainWindow setCollectionBehavior:NSWindowCollectionBehaviorManaged];
+        [DEFAULTS setValue:[NSNumber numberWithBool:NO] forKey:CDKeepWindowAfloatKey];
     }
+    [DEFAULTS synchronize];
 }
 
 

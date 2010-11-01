@@ -55,7 +55,7 @@ extern BOOL DEBUG;
 
 - (void) startCountdown;
 - (void) stopCountdown;
-- (void) setMainWindowKeepAfloat:(BOOL)flag;
+- (void) setMainWindowKeepAfloat:(BOOL)newState;
 
 
 // @property (nonatomic, assign) IBOutlet NSWindow *mainWindow;
