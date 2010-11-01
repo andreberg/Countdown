@@ -1,7 +1,8 @@
 What Is It?
 -----------
 
-Countdown is a Mac OS X utility application that allows the user to pick from a set of pre-defined actions to execute when the timer reaches zero.
+Countdown is a Mac OS X utility application that allows the user to pick from a set of pre-defined actions to execute when the timer reaches zero.  
+You can find some [screenshots](http://github.com/andreberg/Countdown/wiki/Screenshots "Countdown Screenshots") in the Wiki.
 
 Features
 --------
