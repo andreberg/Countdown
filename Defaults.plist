@@ -12,6 +12,8 @@
 	<string>1.0</string>
 	<key>LogOutputVerbose</key>
 	<false/>
+	<key>KeepWindowAfloat</key>
+	<false/>
 	<key>TimeUpdateInterval</key>
 	<string>1.0</string>
 </dict>

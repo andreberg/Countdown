@@ -30,6 +30,7 @@ extern BOOL DEBUG;
     IBOutlet NSTextField * timeTextField;
     IBOutlet NSStepper * timeStepper;
     IBOutlet NSProgressIndicator * progressIndicator;
+    IBOutlet NSMenuItem * keepAfloatMenuItem;
     
     CDAction * action;
 
@@ -50,10 +51,12 @@ extern BOOL DEBUG;
 + (CDAppController *) sharedAppController;
 
 - (IBAction) startStopCountdown:(id)sender;
+- (IBAction) keepWindowAfloat:(id)sender;
 
 - (void) startCountdown;
 - (void) stopCountdown;
-- (void) logOutputVerboseChanged:(NSNotification *)notification;
+- (void) setMainWindowKeepAfloat:(BOOL)flag;
+
 
 // @property (nonatomic, assign) IBOutlet NSWindow *mainWindow;
 // @property (nonatomic, retain) IBOutlet NSButton *startButton;

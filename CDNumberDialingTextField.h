@@ -28,7 +28,7 @@
 
 
 @interface CDNumberDialingTextField : NSTextField {
-    IBOutlet NSStepper * timeStepper;
+    IBOutlet NSStepper * stepper;
 }
 
 @end

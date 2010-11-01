@@ -32,28 +32,34 @@ BOOL DEBUG = NO;
 
 // init
 - (id)init {
-    if (self = [super init]) {
-        isCounting = NO;
-        timer = nil;
-        textFieldEditor = nil;
-        timeTextFieldValue = 0.0;
-        timerCount = 0.0;
-        updateInterval = 0.0;
-        timeInterval = 0.0;
-        stopTime = nil;
-        timeUnit = @"";
-        action = nil;
+    if (sharedInstance == nil) {
+        if (self = [super init]) {
+            isCounting = NO;
+            timer = nil;
+            textFieldEditor = nil;
+            timeTextFieldValue = 0.0;
+            timerCount = 0.0;
+            updateInterval = 0.0;
+            timeInterval = 0.0;
+            stopTime = nil;
+            timeUnit = @"";
+            action = nil;
+            
+            DEBUG = [PREFS_CONTROLLER logOutputVerbose];
+            
+            [NCENTER addObserver:self selector:@selector(logOutputVerboseChanged:) name:CDLogOutputVerboseChangedNotification object:PREFS_CONTROLLER];
+            [NCENTER addObserver:self selector:@selector(keepWindowAfloatChanged:) name:CDKeepWindowAfloatChangedNotification object:PREFS_CONTROLLER];
+        }
+        return self;
+    } else {
+        return sharedInstance;
     }
-    return self;
 }
 
 - (void) awakeFromNib {
-//     timeStepper = timeStepper
-//     timeTextField = timeTextField
-//     textFieldEditor = nil
-    DEBUG = [PREFS_CONTROLLER logOutputVerbose];    
-    [NCENTER addObserver:self selector:@selector(logOutputVerboseChanged:) name: CDLogOutputVerboseChangedNotification object:PREFS_CONTROLLER];
-    
+    if (keepAfloatMenuItem) {
+        [keepAfloatMenuItem setState:[[DEFAULTS valueForKey:CDKeepWindowAfloatKey] boolValue]];
+    }
 }
 
 // MARK: Singleton Creation
@@ -81,7 +87,6 @@ BOOL DEBUG = NO;
     }
 }
 
-
 // MARK: Singleton Overrides 
 
 - (id) copyWithZone: (NSZone *) zone {
@@ -100,6 +105,22 @@ BOOL DEBUG = NO;
     return self;
 }
 
+// MARK: Actions
+
+- (IBAction) keepWindowAfloat:(id)sender {
+    if ([sender state] == NSOffState) {
+        [[NSApp mainWindow] setLevel:NSFloatingWindowLevel];
+        [sender setState:NSOnState];
+        [DEFAULTS setValue:[NSNumber numberWithBool:YES] forKey:CDKeepWindowAfloatKey];
+        [DEFAULTS synchronize];
+    } else { // NSOnState
+        [[NSApp mainWindow] setLevel:NSNormalWindowLevel];
+        [sender setState:NSOffState];
+        [DEFAULTS setValue:[NSNumber numberWithBool:NO] forKey:CDKeepWindowAfloatKey];
+        [DEFAULTS synchronize];
+    }
+}
+
 // MARK: Countdown Engine
 
 - (IBAction) startStopCountdown:(id)sender {
@@ -115,7 +136,8 @@ BOOL DEBUG = NO;
     else {
         [self stopCountdown];
         [startButton setTitle:@"Start"];
-        [timeTextField setEnabled:YES];        
+        [timeTextField setEnabled:YES];
+        [timeTextField becomeFirstResponder];
         [timeStepper setEnabled:YES];
     } 
 }
@@ -131,11 +153,23 @@ BOOL DEBUG = NO;
     if ([timeUnit isEqualToString:@"minutes"]) {
         self.timeInterval *= 60.0;
     }
-    
-    CGFloat ui = 0.0;
+
     NSString * uiStr = [DEFAULTS stringForKey:CDUpdateIntervalKey];
     NSScanner * doubleScanner = [NSScanner scannerWithString:uiStr];
+    
+#ifdef CGFloat
+    CGFloat ui = 0.0;
     BOOL success = [doubleScanner scanDouble:&ui];
+#else
+    #if CGFLOAT_IS_DOUBLE
+        double ui = 0.0;
+        BOOL success = [doubleScanner scanDouble:&ui];
+    #else
+        float ui = 0.0;
+        BOOL success = [doubleScanner scanFloat:&ui];
+    #endif
+#endif
+    
     if (!success) {
         if (DEBUG) NSLog(@"Warning: doubleScanner failed scanning [defaults stringForKey:CDUpdateIntervalKey]");
         ui = atof([uiStr UTF8String]);
@@ -182,23 +216,33 @@ BOOL DEBUG = NO;
         CGFloat pvalue = 100.0 - ((timerCount/timeInterval) * 100.0);
         NSString * pvaluestr = [NSString stringWithFormat:@"%02.3f", pvalue];
         
-//         NSCalendar * gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-//         NSUInteger unitFlags = NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit;
-//         NSDateComponents * components = [gregorian components:unitFlags
-//                                                      fromDate:[NSDate date]
-//                                                        toDate:stopTime 
-//                                                       options:0];
-//         NSInteger hours = [components hour];
-//         NSInteger minutes = [components minute];
-//         NSInteger seconds = [components second] + 1;  // need to add 1 since the NSTimer fire event 
-//                                                       // will happen on the next avilable second
-//         
-//         NSString * displaystr = [NSString stringWithFormat:@"%02d:%02d:%02d", hours, minutes, seconds];
+        NSCalendar * gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+        NSUInteger unitFlags = NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit;
+        NSDateComponents * components = [gregorian components:unitFlags
+                                                     fromDate:[NSDate date]
+                                                       toDate:stopTime 
+                                                      options:0];
+        NSInteger hours = [components hour];
+        NSInteger minutes = [components minute];
+        NSInteger seconds = [components second] + 1;  // need to add 1 since the NSTimer fire event 
+                                                      // will happen on the next avilable second
+        if (seconds == 60) {
+            seconds = 0;
+            minutes = minutes + 1;
+        }
         
-        NSString * displaystr = [stopTime stringForOffsetFromDate:[NSDate dateWithSecondsBeforeNow:1] formatterTemplate:@"HH:mm:ss"];
+        if (minutes == 60) {
+            minutes = 0;
+            hours = hours + 1;
+        }
+         
+        NSString * displaystr = [NSString stringWithFormat:@"%02d:%02d:%02d", hours, minutes, seconds];
         
+//         NSString * displaystr = [stopTime stringForOffsetFromDate:[NSDate dateWithSecondsBeforeNow:1] formatterTemplate:@"HH:mm:ss"];
+
         if (DEBUG) {
             NSLog(@"%@%%", pvaluestr);
+            NSLog(@"displaystr = %@", displaystr);
         }
         
         self.timerCount += updateInterval;
@@ -212,10 +256,10 @@ BOOL DEBUG = NO;
 
 - (void) logOutputVerboseChanged:(NSNotification *)notification {
     if (DEBUG) NSLog(@"log output verbose changed");
-    CGFloat newValue = [[[notification userInfo] objectForKey:CDLogOutputVerboseChangedNotificationNewValueKey] boolValue];
+    BOOL newValue = [[[notification userInfo] objectForKey:CDLogOutputVerboseChangedNotificationNewValueKey] boolValue];
     if (newValue) {
-        if (DEBUG) NSLog(@"setting DEBUG to true");
         DEBUG = YES;
+        if (DEBUG) NSLog(@"setting DEBUG to true");
     }
     else {
         if (DEBUG) NSLog(@"setting DEBUG to false");
@@ -223,10 +267,28 @@ BOOL DEBUG = NO;
     }
 }
 
+- (void) keepWindowAfloatChanged:(NSNotification *)notification {
+    BOOL newValue = [[[notification userInfo] objectForKey:CDKeepWindowAfloatChangedNotificationNewValueKey] boolValue];
+    [self setMainWindowKeepAfloat:newValue];
+    if (newValue) {
+        if (DEBUG) NSLog(@"setting keep window afloat to true");
+    } else {
+        if (DEBUG) NSLog(@"setting keep window afloat to false");
+    }
+}
+
+- (void) setMainWindowKeepAfloat:(BOOL)flag {
+    if (flag) {
+        [[NSApp mainWindow] setLevel:NSFloatingWindowLevel];
+    } else {
+        [[NSApp mainWindow] setLevel:NSNormalWindowLevel];
+    }
+}
+
+
 // MARK: NSApplicationDelegate Protocol
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-	
 }
 
 - (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
@@ -234,7 +296,7 @@ BOOL DEBUG = NO;
 }
 
 - (void) applicationWillTerminate:(NSNotification *)notification {
-    [NCENTER removeObserver:self name:CDLogOutputVerboseChangedNotification object:PREFS_CONTROLLER];
+    [NCENTER removeObserver:self];
 }
 
 // MARK: NSWindow Delegate
@@ -252,7 +314,13 @@ BOOL DEBUG = NO;
 
 
 - (void) windowDidBecomeMain:(NSNotification *)notification {
-    [timeTextField becomeFirstResponder];
+    @try {
+        [timeTextField becomeFirstResponder];
+        [self setMainWindowKeepAfloat:[DEFAULTS boolForKey:CDKeepWindowAfloatKey]];
+    }
+    @catch (NSException * e) {
+        if (DEBUG) NSLog(@"%@: %@", [e name], [e reason]);
+    }
 }
 
 // MARK: Synthesized Properties

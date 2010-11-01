@@ -254,7 +254,7 @@
     NSDateFormatter * formatter = [[NSDateFormatter alloc] init];
     [formatter setLocale:CURRENT_LOCALE];
     [formatter setDateFormat:dateFormatterTemplate];
-    return [formatter stringFromDate:dDate];
+    return [[formatter stringFromDate:dDate] description];
 }
 
 

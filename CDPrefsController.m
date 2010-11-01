@@ -28,9 +28,12 @@ NSString * CDTimeUnitKey          = @"TimeUnit";
 NSString * CDLastTimeValueKey     = @"LastTimeValue";
 NSString * CDLogOutputVerboseKey  = @"LogOutputVerbose";
 NSString * CDUpdateIntervalKey    = @"TimeUpdateInterval";
+NSString * CDKeepWindowAfloatKey  = @"KeepWindowAfloat";
 
 NSString * CDLogOutputVerboseChangedNotification              = @"LogOutputVerboseChangedNotification";
 NSString * CDLogOutputVerboseChangedNotificationNewValueKey   = @"LogOutputVerboseChangedNotificationNewValue";
+NSString * CDKeepWindowAfloatChangedNotification              = @"KeepWindowAfloatChangedNotification";
+NSString * CDKeepWindowAfloatChangedNotificationNewValueKey   = @"KeepWindowAfloatChangedNotificationNewValue";
 
 static CDPrefsController * sharedInstance = nil;
 
@@ -44,6 +47,7 @@ static CDPrefsController * sharedInstance = nil;
     [self setupDefaults];
     logOutputVerbose = [DEFAULTS boolForKey:CDLogOutputVerboseKey];
     updateInterval = [DEFAULTS doubleForKey:CDUpdateIntervalKey];
+    keepWindowAfloat = [DEFAULTS boolForKey:CDKeepWindowAfloatKey];
     return self;
 }
 
@@ -134,18 +138,34 @@ static CDPrefsController * sharedInstance = nil;
 
 - (IBAction) logOutputVerboseClicked:(id)sender {
     if ([sender state] == 0) {
-        logOutputVerbose = NO;
+        self.logOutputVerbose = NO;
     } else {
-        logOutputVerbose = YES;
+        self.logOutputVerbose = YES;
     }
     NSDictionary * info = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:logOutputVerbose] forKey:CDLogOutputVerboseChangedNotificationNewValueKey];
-    [NCENTER postNotificationName:CDLogOutputVerboseChangedNotification object:PREFS_CONTROLLER userInfo:info];
+    [NCENTER postNotificationName:CDLogOutputVerboseChangedNotification object:self userInfo:info];
 }
+
+//- (IBAction) keepWindowAfloatClicked:(id)sender {
+//    if ([sender state] == 0) {
+//        self.keepWindowAfloat = NO;
+//    } else {
+//        self.keepWindowAfloat = YES;
+//    }
+//    NSDictionary * info = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:keepWindowAfloat] forKey:CDKeepWindowAfloatChangedNotificationNewValueKey];
+//    [NCENTER postNotificationName:CDKeepWindowAfloatChangedNotification object:self userInfo:info];
+//    [APP_CONTROLLER setMainWindowKeepAfloat:keepWindowAfloat];
+//}
 
 - (IBAction) savePrefsAndCloseWindow:(id)sender {
     [(NSUserDefaultsController *)DEFAULTS_CONTROLLER save:sender];
     [DEFAULTS synchronize];
-    [NSApp endSheet:self.window];
+    [self closeWindow:self];
+}
+
+- (IBAction) revertToDefaults:(id)sender {
+    [(NSUserDefaultsController *)DEFAULTS_CONTROLLER revertToInitialValues:sender];
+    [DEFAULTS synchronize];
 }
 
 - (void) didEndSheet:(NSPanel *)sheet {
@@ -166,16 +186,16 @@ static CDPrefsController * sharedInstance = nil;
 
 // MARK: NSWindow Delegate
 
-// - (id) windowWillReturnFieldEditor:(NSWindow *)sender toObject:(id)client {
-//     if ([client isKindOfClass:[CDNumberDialingTextField class]]) {
-//         if (!self.textFieldEditor) {
-//             self.textFieldEditor = [[CDNumberDialingTextFieldEditor alloc] init];
-//             [self.textFieldEditor setFieldEditor:YES];
-//         }
-//         return self.textFieldEditor;
-//     }
-//     return nil;
-// }
+- (id) windowWillReturnFieldEditor:(NSWindow *)sender toObject:(id)client {
+    if ([client isKindOfClass:[CDNumberDialingTextField class]]) {
+        if (!self.textFieldEditor) {
+            self.textFieldEditor = [[CDNumberDialingTextFieldEditor alloc] init];
+            [self.textFieldEditor setFieldEditor:YES];
+        }
+        return self.textFieldEditor;
+    }
+    return nil;
+}
 
 // MARK: Menu Validation
 
@@ -195,6 +215,7 @@ static CDPrefsController * sharedInstance = nil;
 // MARK: Synthesized Properties
 
 @synthesize logOutputVerbose;
+@synthesize keepWindowAfloat;
 @synthesize updateInterval;
 @synthesize textFieldEditor;
 @end

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 45;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -17,6 +17,7 @@
 		6504F5A211550012003EFB50 /* BWToolkitFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6504F5A111550012003EFB50 /* BWToolkitFramework.framework */; };
 		6585368C116CE85F0094BDB0 /* System Events.app in Resources */ = {isa = PBXBuildFile; fileRef = 6585368B116CE85F0094BDB0 /* System Events.app */; };
 		65853736116D05F00094BDB0 /* NSString-BMScriptUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 65853735116D05F00094BDB0 /* NSString-BMScriptUtilities.m */; };
+		6588986C119713BB00A12EAE /* BWToolkitFramework.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 6504F5A111550012003EFB50 /* BWToolkitFramework.framework */; };
 		6595AEF6116B6F6300C50629 /* NSDate-Utilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 6595AEF3116B6F6300C50629 /* NSDate-Utilities.m */; };
 		65A7BE9F1157855F009093E0 /* ScriptingBridge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65A7BE9E1157855F009093E0 /* ScriptingBridge.framework */; };
 		65C0A1C611543C8400FDF2E4 /* CDAppController.m in Sources */ = {isa = PBXBuildFile; fileRef = 65C0A1C511543C8400FDF2E4 /* CDAppController.m */; };
@@ -40,6 +41,20 @@
 		};
 /* End PBXBuildRule section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		65889873119713BE00A12EAE /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6588986C119713BB00A12EAE /* BWToolkitFramework.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -58,7 +73,8 @@
 		6504F3F81154DC07003EFB50 /* CDAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDAction.m; sourceTree = "<group>"; };
 		6504F3FA1154DD00003EFB50 /* CDPrefsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDPrefsController.h; sourceTree = "<group>"; };
 		6504F3FB1154DD00003EFB50 /* CDPrefsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDPrefsController.m; sourceTree = "<group>"; };
-		6504F5A111550012003EFB50 /* BWToolkitFramework.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BWToolkitFramework.framework; path = Library/Frameworks/BWToolkitFramework.framework; sourceTree = SDKROOT; };
+		6504F5A111550012003EFB50 /* BWToolkitFramework.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = BWToolkitFramework.framework; sourceTree = "<group>"; };
+		650AB9B6117793D20019BF95 /* Todo.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Todo.rtf; sourceTree = "<group>"; };
 		6585368B116CE85F0094BDB0 /* System Events.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = "System Events.app"; path = "/System/Library/CoreServices/System Events.app"; sourceTree = "<absolute>"; };
 		65853734116D05F00094BDB0 /* NSString-BMScriptUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString-BMScriptUtilities.h"; sourceTree = "<group>"; };
 		65853735116D05F00094BDB0 /* NSString-BMScriptUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString-BMScriptUtilities.m"; sourceTree = "<group>"; };
@@ -135,6 +151,7 @@
 		29B97314FDCFA39411CA2CEA /* Countdown */ = {
 			isa = PBXGroup;
 			children = (
+				65B6DB1B127E4DE500BC89FF /* Project */,
 				65EE2415116B6BB00052FAD2 /* Config */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
@@ -197,6 +214,14 @@
 			name = "Apple Event Bridge";
 			sourceTree = "<group>";
 		};
+		65B6DB1B127E4DE500BC89FF /* Project */ = {
+			isa = PBXGroup;
+			children = (
+				650AB9B6117793D20019BF95 /* Todo.rtf */,
+			);
+			name = Project;
+			sourceTree = "<group>";
+		};
 		65EE2415116B6BB00052FAD2 /* Config */ = {
 			isa = PBXGroup;
 			children = (
@@ -212,6 +237,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "Countdown" */;
 			buildPhases = (
+				65889873119713BE00A12EAE /* Copy Frameworks */,
 				8D1107290486CEB800E47090 /* Resources */,
 				8D11072C0486CEB800E47090 /* Sources */,
 				8D11072E0486CEB800E47090 /* Frameworks */,
@@ -232,9 +258,19 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Countdown" */;
-			compatibilityVersion = "Xcode 3.1";
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Countdown */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -303,6 +339,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "\"${SRCROOT}\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
@@ -320,6 +357,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = "\"${SRCROOT}\"";
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Countdown_Prefix.pch;
@@ -338,6 +376,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
@@ -346,6 +385,7 @@
 		};
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 65EE2417116B6BCE0052FAD2 /* Project.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;

@@ -22,6 +22,18 @@
 #import "NSString-BMScriptUtilities.h"
 #import "SystemEvents.h"
 
+const int CDActionNotFound = -1;
+
+static CDActionType gDefaultActionTypes[] = {
+    {CDActionShutDown,    @"Shut Down"},
+    {CDActionRestart,     @"Restart"},
+    {CDActionSleep,       @"Sleep"},
+    {CDActionLogOut,      @"Log Out"},
+    {CDActionDialog,      @"Dialog"},
+    {CDActionDialogBeep,  @"Dialog + Beep"},
+    {CDActionShellScript, @"Shell Script"},
+};
+
 // MARK: Helper Functions
 
 CD_INLINE
@@ -70,7 +82,7 @@ CDActionCode CDActionCodeFromNSString(NSString * typeString) {
         }
         scan++;
     }
-    return NSNotFound;
+    return CDActionNotFound;
 }
 
 @interface CDAction (/*Private*/)
@@ -90,7 +102,7 @@ CDActionCode CDActionCodeFromNSString(NSString * typeString) {
 
 - (id) initWithType:(NSString *)typeString text:(NSString *)actionText controller:(CDAppController *)appController {
     CDActionCode _code = CDActionCodeFromNSString(typeString);
-    if (_code != NSNotFound) {
+    if (_code != CDActionNotFound) {
         return [self initWithActionCode:_code text:actionText controller:appController];
     }
     return nil;
@@ -173,7 +185,7 @@ CDActionCode CDActionCodeFromNSString(NSString * typeString) {
     }
     else if (code == CDActionShellScript) {
         @try {
-            NSInteger result = system([text UTF8String]);
+            int result = system([text UTF8String]);
             NSLog(@"shell script returned %d", result);
         }
         @catch (NSException * e) {

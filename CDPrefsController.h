@@ -25,9 +25,12 @@ extern NSString * CDTimeUnitKey;
 extern NSString * CDLastTimeValueKey;
 extern NSString * CDLogOutputVerboseKey;
 extern NSString * CDUpdateIntervalKey;
+extern NSString * CDKeepWindowAfloatKey;
 
 extern NSString * CDLogOutputVerboseChangedNotification;
 extern NSString * CDLogOutputVerboseChangedNotificationNewValueKey;
+extern NSString * CDKeepWindowAfloatChangedNotification;
+extern NSString * CDKeepWindowAfloatChangedNotificationNewValueKey;
 
 @class CDNumberDialingTextField, CDNumberDialingTextFieldEditor;
 
@@ -38,6 +41,7 @@ extern NSString * CDLogOutputVerboseChangedNotificationNewValueKey;
     IBOutlet NSMatrix * actionChoices;
     IBOutlet NSTextField * actionTextField;
     BOOL logOutputVerbose;
+    BOOL keepWindowAfloat;
     CGFloat updateInterval;
     CDNumberDialingTextFieldEditor * textFieldEditor;
 }
@@ -48,6 +52,7 @@ extern NSString * CDLogOutputVerboseChangedNotificationNewValueKey;
 - (IBAction) closeWindow:(id)sender;
 - (IBAction) logOutputVerboseClicked:(id)sender;
 - (IBAction) savePrefsAndCloseWindow:(id)sender;
+- (IBAction) revertToDefaults:(id)sender;
 
 - (void) didEndSheet:(NSPanel *)sheet;
 - (void) setupDefaults;
@@ -55,4 +60,5 @@ extern NSString * CDLogOutputVerboseChangedNotificationNewValueKey;
 @property (nonatomic, assign) BOOL logOutputVerbose;
 @property (nonatomic, assign) CGFloat updateInterval;
 @property (nonatomic, retain) CDNumberDialingTextFieldEditor * textFieldEditor;
+@property (nonatomic, assign) BOOL keepWindowAfloat;
 @end
