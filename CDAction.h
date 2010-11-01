@@ -33,20 +33,12 @@ typedef enum  {
     CDActionShellScript
 } CDActionCode;
 
+extern const int CDActionNotFound; 
+
 typedef struct CDActionType {
     CDActionCode code;
     NSString * text;
 } CDActionType;
-
-static CDActionType gDefaultActionTypes[] = {
-    {CDActionShutDown,    @"Shut Down"},
-    {CDActionRestart,     @"Restart"},
-    {CDActionSleep,       @"Sleep"},
-    {CDActionLogOut,      @"Log Out"},
-    {CDActionDialog,      @"Dialog"},
-    {CDActionDialogBeep,  @"Dialog + Beep"},
-    {CDActionShellScript, @"Shell Script"},
-};
 
 FOUNDATION_EXPORT NSString * MsecStamp(NSDate * now);
 FOUNDATION_EXPORT NSString * TimeStamp(NSDate * now);
@@ -71,5 +63,5 @@ FOUNDATION_EXPORT NSString * NSStringFromCDActionCode(CDActionCode code);
 
 @property (nonatomic, assign) CDActionCode code;
 @property (nonatomic, copy) NSString * text;
-@property (nonatomic, retain) NSObject * controller;
+@property (nonatomic, retain) CDAppController * controller;
 @end
